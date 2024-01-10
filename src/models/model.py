@@ -13,3 +13,13 @@ class Todo(BaseModel):
             }
         }
 
+
+class TodoItem(BaseModel):
+    item: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "item": "Прочитать следующую главу книги."
+            }
+        }
