@@ -1,21 +1,38 @@
 from fastapi import APIRouter, Path
 
-from models.model import Todo, TodoItem
-
+from models.model import Todo, TodoItem, TodoItems, ModelName
+from typing import Any
 todo_router = APIRouter()
 
 todo_list = []
 
 
+@todo_router.get('/files/{file_path:path}')  # :path указывает на то, что параметр должен соответствовать любому пути
+async def file_path(file_path: str):
+    return {"file_path": file_path}
+
+
+@todo_router.get('/models/{model_name}')
+async def get_model(model_name: ModelName):
+    if model_name is ModelName.alexnet:
+        return {"model_name": model_name, "message": "Deep Learning FTW!"}
+    if model_name.value == "detnet":  # Также можно получить через ModelName.detnet.value
+        return {"model_name": model_name, "message": "LeCNN all the images"}
+
+    return {"model_name": model_name, "message": "Have some residuals"}
+
+
 @todo_router.post('/todo')
-async def add_todo(todo: Todo) -> dict:
+async def add_todo(todo: TodoItem) -> dict:
     todo_list.append(todo)
     return {"Message": "Todo added successfuly"}
 
 
-@todo_router.get('/todo')
+@todo_router.get('/todo', response_model=TodoItems)
 async def retrieve_todos() -> dict:
-    return {"todos": todo_list}
+    return {
+        "todos": todo_list
+    }
 
 
 @todo_router.get('/todo/{todo_id}')
