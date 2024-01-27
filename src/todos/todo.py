@@ -1,11 +1,32 @@
-from fastapi import APIRouter, Path
+from fastapi import APIRouter, Path, Query
 
 from models.model import Todo, TodoItem, TodoItems, ModelName
-from typing import Any
+from typing import Union, Annotated
+
 todo_router = APIRouter()
 
 todo_list = []
 
+
+@todo_router.get('/items')
+async def read_items(
+        q: Annotated[str | None, Query(min_length=3,
+                                       max_length=50,
+                                       pattern="^fixedquery$",
+                                       title="Query string",
+                                       description="Query string for the items to search in the database that have a good match",
+                                       deprecated=True
+                                       )] = None):
+    """
+
+    :param q: Используем Annotated чтобы помимо типа указать метаданные, в нашем случае это Query, с параметром
+    max_length. Что дает нам дополнительные параметры валидации.
+    :return:
+    """
+    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+    if q:
+        results.update({"q": q})
+    return results
 
 @todo_router.get('/files/{file_path:path}')  # :path указывает на то, что параметр должен соответствовать любому пути
 async def file_path(file_path: str):
@@ -16,6 +37,7 @@ async def file_path(file_path: str):
 async def get_model(model_name: ModelName):
     if model_name is ModelName.alexnet:
         return {"model_name": model_name, "message": "Deep Learning FTW!"}
+
     if model_name.value == "detnet":  # Также можно получить через ModelName.detnet.value
         return {"model_name": model_name, "message": "LeCNN all the images"}
 
