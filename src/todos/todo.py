@@ -8,6 +8,26 @@ todo_router = APIRouter()
 todo_list = []
 
 
+@todo_router.get('/items/{item_id}')
+async def read_item(item_id: Annotated[int, Path(title="The ID of the item to get", gt=1, le=100)],
+                    q: Annotated[str | None, Query(min_length=3,
+                                                   max_length=50,
+                                                   pattern="^fixedquery$",
+                                                   title="Query string",
+                                                   description="Query string for the items to search in the database that have a good match",
+                                                   deprecated=True
+                                                   )] = None):
+    """
+
+    :param item_id: qe - Больше или равно, gt - Больше, le - Меньше или равно
+    :param q:
+    :return:
+    """
+    results = {"item_id": item_id}
+    if q:
+        results.update({"q": q})
+    return results
+
 @todo_router.get('/items')
 async def read_items(
         q: Annotated[str | None, Query(min_length=3,
