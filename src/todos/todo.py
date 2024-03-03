@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Path, Query, Body
 
-from models.model import Todo, TodoItem, TodoItems, ModelName
+from models.model import Todo, TodoItem, TodoItems, ModelName, Item, User
 from typing import Union, Annotated
 
 todo_router = APIRouter()
@@ -8,25 +8,30 @@ todo_router = APIRouter()
 todo_list = []
 
 
+@todo_router.put('/item/{item_id}')
+async def update_item(item_id: int, item: Item, user: User, importance: Annotated[int, Body(gt=0)]):
+    results = {"item_id": item_id, "item": item, "user": user, "importance": importance}
+    return results
+
+
 @todo_router.get('/items/{item_id}')
-async def read_item(item_id: Annotated[int, Path(title="The ID of the item to get", gt=1, le=100)],
-                    q: Annotated[str | None, Query(min_length=3,
-                                                   max_length=50,
-                                                   pattern="^fixedquery$",
-                                                   title="Query string",
-                                                   description="Query string for the items to search in the database that have a good match",
-                                                   deprecated=True
-                                                   )] = None):
+async def read_item(item_id: Annotated[int, Path(title="The ID of the item to get", ge=0, le=1000)],
+                    q: str or None = None,
+                    item: Item or None = None):
     """
 
     :param item_id: qe - Больше или равно, gt - Больше, le - Меньше или равно
     :param q:
+    :param item:
     :return:
     """
     results = {"item_id": item_id}
     if q:
         results.update({"q": q})
+    if item:
+        results.update({"item": item})
     return results
+
 
 @todo_router.get('/items')
 async def read_items(
@@ -47,6 +52,7 @@ async def read_items(
     if q:
         results.update({"q": q})
     return results
+
 
 @todo_router.get('/files/{file_path:path}')  # :path указывает на то, что параметр должен соответствовать любому пути
 async def file_path(file_path: str):
