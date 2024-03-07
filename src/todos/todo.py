@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Path, Query, Body
+from fastapi import APIRouter, Path, Query, Body, status, File, UploadFile
 
 from models.model import Todo, TodoItem, TodoItems, ModelName, Item, User, UserIn, UserOut
 from typing import Union, Annotated, Any
@@ -33,7 +33,7 @@ async def read_item(item_id: Annotated[int, Path(title="The ID of the item to ge
     return results
 
 
-@todo_router.get('/items')
+@todo_router.get('/items', status_code=status.HTTP_201_CREATED)
 async def read_items(
         q: Annotated[str | None, Query(min_length=3,
                                        max_length=50,
@@ -113,6 +113,17 @@ async def delete_todo(todo_id: int = Path(..., title="The ID of the todo deleted
 async def delete_all_todos() -> dict:
     todo_list.clear()
     return {"message": "Todos deleted successfully"}
+
+
+@todo_router.post("/files/")
+async def create_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
+
+
+@todo_router.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename}
+
 
 
 @todo_router.post("/user/", response_model=UserOut)
