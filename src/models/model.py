@@ -1,7 +1,16 @@
 from enum import Enum
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, EmailStr
 from typing import List, Optional
 
+
+class UserOut(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str | None = None
+
+
+class UserIn(UserOut):
+    password: str
 
 class Image(BaseModel):
     url: HttpUrl

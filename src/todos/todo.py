@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Path, Query, Body
 
-from models.model import Todo, TodoItem, TodoItems, ModelName, Item, User
-from typing import Union, Annotated
+from models.model import Todo, TodoItem, TodoItems, ModelName, Item, User, UserIn, UserOut
+from typing import Union, Annotated, Any
 
 todo_router = APIRouter()
 
@@ -113,3 +113,13 @@ async def delete_todo(todo_id: int = Path(..., title="The ID of the todo deleted
 async def delete_all_todos() -> dict:
     todo_list.clear()
     return {"message": "Todos deleted successfully"}
+
+
+@todo_router.post("/user/", response_model=UserOut)
+async def create_user(user: UserIn) -> Any:
+    return user
+
+
+@todo_router.post("/user/add")
+async def add_user(user: UserIn) -> UserOut:
+    return user
